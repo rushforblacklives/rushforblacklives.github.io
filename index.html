@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,400;0,500;0,900;1,100;1,400;1,500;1,900&display=swap" rel="stylesheet"/> 
+  <style type="text/css">
+    body {
+      background: #000;
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      margin: 0 auto;
+      max-width: 720px;
+      font-weight: 100;
+      font-size: 18px;
+      margin: 20px auto;
+      padding: 0px 10px;
+    }
+    h1 {
+      margin: 20px 0;
+      font-size: 60px;
+    }
+    @media only screen and (max-width: 600px) {
+      body {
+        font-size: 16px;
+      }
+      h1 {
+        font-size: 34px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
+    #names, #names li {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #names {
+      margin-bottom: 20px;
+    }
+
+    a, a:visited, a:active {
+      color: #aeff00;
+      text-decoration: none;
+      font-weight: 500;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.2.0/papaparse.min.js"></script>
+  <script type="text/javascript">
+    var fetch = function(uri, callback) {
+      var xmlhttp = new XMLHttpRequest()
+      
+      xmlhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              callback(JSON.parse(this.responseText))
+          }
+      };
+      xmlhttp.open("GET", uri, true)
+      xmlhttp.send()
+    }
+
+    var feedToArray = function (doc) {
+      const outArray = []
+      const cells = doc.feed.entry
+      for (var index = 0; index < cells.length; ++index) {
+        const cell = cells[index]['gs$cell']
+        const row = parseInt(cell.row, 10) - 1
+        const col = parseInt(cell.col, 10) - 1
+        if (!outArray[row]) {
+          outArray[row] = []
+        }
+        console.log(cell, row, col)
+        outArray[row][col] = cell.inputValue
+      }
+      return outArray
+    }
+
+    var elementWithText = function (type, text) {
+      var element = document.createElement(type)
+      element.textContent = text
+      return element
+    }
+
+
+    var init = function() {
+      fetch('https://spreadsheets.google.com/feeds/cells/1VP9vCCweqkS9GgZIZXRB53gbNYnOlBW58PcR_3EYkXM/1/public/full?alt=json', function(c) {
+          const rows = feedToArray(c)
+          const list = document.getElementById('names')
+          for (var index = 1; index < rows.length; ++index) {
+              var listItem = document.createElement('li')
+              listItem.appendChild(elementWithText('b', rows[index][1] + ' ' + rows[index][2]))
+              listItem.appendChild(elementWithText('span', ', ' + rows[index][4]))
+              list.appendChild(listItem)
+          }
+      })
+    }
+    window.addEventListener('DOMContentLoaded', init)
+
+  </script>
+</head>
+<body>
+  <h1>Foo</h1>
+  <p>Lorem ipsum</p>
+  <h3>Signed,</h2>
+  <ul id="names"></ul>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSc8ZtoH36Acowtn0Ngz7KbLLpLNjkYMH9xtt8hQoC0veDpHEg/viewform">Add your signature</a>
+  
+</body>
+</html>
